@@ -18,8 +18,6 @@ export const aEmojiWeather = [
     },
 ];
 
-console.log('La tienda esta conectada y funcionando');
-
 export const useWeatherStore = defineStore('weather', {
     state: () => ({
         currentWeather: {
@@ -36,26 +34,33 @@ export const useWeatherStore = defineStore('weather', {
     // SACAR INFORMACION DEL ESTADO PARA QUE OTROS COMPONENTES PUEDAN USARLA
     // SOLO LECTURA Y FILTRO
     getters: {
-        // getCity: (state) => state.city,
-        getStateInfo(state) {
+        getStateCurrentWeather(state) {
             return {
                 date: state.currentWeather.date,
                 emoji: state.currentWeather.emoji,
                 temp: state.currentWeather.temp,
                 wind: state.currentWeather.wind,
                 humidity: state.currentWeather.humidity,
+            };
+        },
+        getStateCity(state) {
+            return {
                 city: state.city,
-                forecastWeather: state.forecastWeather,
+            };
+        },
+        getStateForecast(state) {
+            return {
+                forecast: state.forecastWeather,
+            };
+        },
+        getStateSearchedCitiesHistory(state) {
+            return {
                 searchedCitiesHistory: state.searchedCitiesHistory,
             };
         },
     },
 
-    // TODO LO QUE VA A MODIFICAR EL APP STATE, LO CUAL INCLUYEN API CALLS
     actions: {
-        logState() {
-            console.log(this.$state);
-        },
         updateStateCurrentWeather(city, oCurrentWeather) {
             this.city = city;
             this.currentWeather.emoji = oCurrentWeather.emoji;
@@ -68,10 +73,11 @@ export const useWeatherStore = defineStore('weather', {
             const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=imperial`;
             try {
                 const response = await fetch(url);
-                if (response.status === 404) return alert('City Not Found. Please Try Another One');
+                if (response.status === 404) {
+                    alert('City Not Found. Please Try Another One');
+                    return false;
+                }
                 const data = await response.json();
-                // this.cityID = data.id;
-                // console.log(data);
 
                 const oCurrentWeather = {
                     emoji: data.weather[0].main,
@@ -79,20 +85,22 @@ export const useWeatherStore = defineStore('weather', {
                     wind: data.wind.speed,
                     humidity: data.main.humidity,
                 };
-                // console.log(this.currentWeather);
+
                 this.updateStateCurrentWeather(data.name, oCurrentWeather);
                 this.getForecast(data.id);
+                return true;
             } catch (error) {
                 console.error(`An error has occurred: ${error}`);
+                return false;
             }
         },
 
         async getForecast(cityID) {
             const forecastURL = `https://api.openweathermap.org/data/2.5/forecast?id=${cityID}&appid=${apiKey}&units=imperial`;
-            // console.log(forecastURL);
+
             try {
                 const responseForecast = await fetch(forecastURL);
-                // console.log(responseForecast);
+
                 if (responseForecast.status === 404) return alert('City Not Found. Please Try Another One');
 
                 const dataForecast = await responseForecast.json();
@@ -120,7 +128,6 @@ export const useWeatherStore = defineStore('weather', {
                         return oForecast;
                     });
                 this.forecastWeather = aForecastPredict;
-                // displayForecastCards();
             } catch (error) {
                 console.log(`An error has occurred: ${error}`);
             }

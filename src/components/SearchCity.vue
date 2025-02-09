@@ -1,41 +1,25 @@
 <script setup>
-    import { onMounted, ref } from 'vue';
+    import { ref } from 'vue';
     import { useWeatherStore } from '@/stores/weather';
 
     const weatherStore = useWeatherStore();
-    const H_BTN_SEARCHED_CITIES = ref(null);
+
     const inputCity = ref('');
 
-    onMounted(() => {
-        H_BTN_SEARCHED_CITIES.value = document.querySelector('#common-cities');
-        H_BTN_SEARCHED_CITIES.value.addEventListener('click', function (e) {
-            const H_BTN_CLICKED = e.target.closest('.test');
-            if (!H_BTN_CLICKED) return;
+    async function submitCity() {
+        if (!inputCity.value) return alert('Please Search a Valid City');
 
-            console.log(`clicked on:`, H_BTN_CLICKED);
-            console.log(H_BTN_CLICKED.textContent);
-            searchCity(H_BTN_CLICKED.textContent);
-        });
-        // console.log(weatherStore.getStateInfo.searchedCitiesHistory);
-        // weatherStore.getStateInfo.searchedCitiesHistory.forEach((city) => console.log(city));
-    });
+        const bFoundCity = await weatherStore.getCurrentWeather(inputCity.value);
 
-    async function searchCity(city) {
-        const cityName = typeof city === 'object' ? city.value : city;
-
-        // console.log('City received: ', cityName);
-
-        if (!cityName) return alert('Please Search a Valid City');
-
-        await weatherStore.getCurrentWeather(city);
-
-        createCitiesHistory();
-        inputCity.value = '';
+        if (bFoundCity) {
+            createCitiesHistory();
+            inputCity.value = '';
+        }
     }
 
     function createCitiesHistory() {
-        const currentCity = weatherStore.getStateInfo.city;
-        const history = weatherStore.getStateInfo.searchedCitiesHistory;
+        const currentCity = weatherStore.getStateCity.city;
+        const history = weatherStore.getStateSearchedCitiesHistory.searchedCitiesHistory;
 
         // Si la ciudad ya existe en el historial, moverla al inicio
         if (history.includes(currentCity)) {
@@ -47,19 +31,26 @@
             weatherStore.updateSearchedCitiesHistory(updatedHistory.slice(0, 10)); // Solo 10 ciudades
         }
     }
+
+    function getSearchedCity(city) {
+        inputCity.value = city;
+        submitCity();
+    }
 </script>
 
 <template>
     <aside>
         <!-- CUANDO EL BOTON HAGA SUBMIT, PREVIENE EL COMPORTAMIENTO POR DEFECTO Y EJECUTA LA FUNCION SEARCH CITY -->
-        <form @submit.prevent="searchCity(inputCity)">
+        <form @submit.prevent="submitCity">
             <label class="label-title" for="city-input">Search for a City:</label>
             <input class="input-cities" type="text" placeholder="San Diego" v-model="inputCity" />
             <button type="submit" id="btn-search">Search</button>
             <hr />
         </form>
         <section id="common-cities">
-            <button class="test" v-for="city in weatherStore.getStateInfo.searchedCitiesHistory">{{ city }}</button>
+            <button class="test" v-for="city in weatherStore.getStateSearchedCitiesHistory.searchedCitiesHistory" @click="getSearchedCity(city)">
+                {{ city }}
+            </button>
         </section>
     </aside>
 </template>

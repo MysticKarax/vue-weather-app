@@ -1,15 +1,5 @@
 <script setup>
-    import { useWeatherStore } from '@/stores/weather';
-    import { onMounted, defineProps, defineEmits } from 'vue';
-
-    const weatherStore = useWeatherStore();
-
-    onMounted(() => {
-        const H_FORECAST_CONTAINER = document.querySelector('.cards-forecast-container');
-        // console.log(H_FORECAST_CONTAINER);
-    });
-
-    // weatherStore.logState();
+    import { defineProps } from 'vue';
 
     const props = defineProps({
         day: {
@@ -39,12 +29,6 @@
             %
         </p>
     </div>
-
-    <!-- FIXME: HTML FINAL A USAR -->
-    <!-- <section>
-          <h3>5-Day Forecast:</h3>
-          <div class="cards-forecast-container"></div>
-        </section> -->
 </template>
 
 <style scoped>
