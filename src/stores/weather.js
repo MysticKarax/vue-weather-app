@@ -29,7 +29,7 @@ export const useWeatherStore = defineStore('weather', {
         },
         city: '',
         forecastWeather: [],
-        searchedCitiesHistory: ['Manzanillo', 'Huston', 'Guadalajara', 'Sydney', 'Austin', 'Laredo', 'Torreon', 'Saltillo', 'Los Angeles', 'Mexico City'],
+        searchedCitiesHistory: ['Manzanillo', 'Huston', 'Guadalajara', 'Sydney', 'Austin', 'Torreon', 'Los Angeles', 'Mexico City'],
     }),
     // SACAR INFORMACION DEL ESTADO PARA QUE OTROS COMPONENTES PUEDAN USARLA
     // SOLO LECTURA Y FILTRO
